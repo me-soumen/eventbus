@@ -20,11 +20,11 @@ jobs:
       - name: Update user portfolio data
         env:
           USERID: ${{ github.event.client_payload.userId }}
+          USERNAME: ${{ github.event.client_payload.userName }}
           PORTFOLIO: ${{ github.event.client_payload.portfolio }}
         run: |
           cd portfolio
-          FILE="database/${USERID}.json"
-          
+          FILE="database/${USERNAME}.json"          
           if [ ! -f "$FILE" ]; then
             echo "User JSON not found"
             exit 1
