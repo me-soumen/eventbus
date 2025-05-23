@@ -1,0 +1,54 @@
+name: Update User Portfolio
+
+on:
+  repository_dispatch:
+    types: [update-portfolio]
+
+jobs:
+  update-portfolio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone Portfolio Repo
+        env:
+          PORTFOLIO_PAT: ${{ secrets.PORTFOLIO_CRUD_TOKEN }}
+        run: |
+          git clone https://x-access-token:${PORTFOLIO_PAT}@github.com/me-soumen/portfolio.git
+          cd portfolio
+          echo "Cloned portfolio repo"
+
+      - name: Update user portfolio data
+        env:
+          USERID: ${{ github.event.client_payload.userId }}
+          PORTFOLIO: ${{ github.event.client_payload.portfolio }}
+        run: |
+          cd portfolio
+          FILE="database/${USERID}.json"
+          
+          if [ ! -f "$FILE" ]; then
+            echo "User JSON not found"
+            exit 1
+          fi
+
+          node <<EOF
+          const fs = require('fs');
+          const filePath = '$FILE';
+          const portfolio = process.env.PORTFOLIO;
+
+          const userData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          userData.portfolio = JSON.parse(portfolio);
+          fs.writeFileSync(filePath, JSON.stringify(userData, null, 2));
+          console.log("Updated portfolio for user:", userData.userId);
+          EOF
+
+      - name: Commit and push changes
+        env:
+          PORTFOLIO_PAT: ${{ secrets.PORTFOLIO_CRUD_TOKEN }}
+        run: |
+          cd portfolio
+          git config --global user.name "me-soumen"
+          git config --global user.email "me.soumen02@gmail.com"
+
+          git add database/${{ github.event.client_payload.username }}.json
+          git commit -m "Update portfolio for ${{ github.event.client_payload.username }}" || echo "Nothing to commit"
+          git push origin main
