@@ -51,4 +51,4 @@ jobs:
 
           git add database/${{ github.event.client_payload.username }}.json
           git commit -m "Update portfolio for ${{ github.event.client_payload.username }}" || echo "Nothing to commit"
-          git push origin main
+          git push origin master
