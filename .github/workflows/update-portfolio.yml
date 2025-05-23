@@ -36,7 +36,7 @@ jobs:
           const portfolio = process.env.PORTFOLIO;
 
           const userData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-          userData.portfolio = JSON.parse(portfolio);
+          userData.portfolio = portfolio;
           fs.writeFileSync(filePath, JSON.stringify(userData, null, 2));
           console.log("Updated portfolio for user:", userData.userId);
           EOF
